@@ -1,0 +1,4 @@
+kubectl delete deployment mysql-deployment
+kubectl delete svc mysql-service
+kubectl delete pvc ebs-mysql-pv-claim
+kubectl delete sc ebs-sc
