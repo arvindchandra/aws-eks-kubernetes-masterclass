@@ -11,6 +11,8 @@
 | Deployment, Environment Variables, Volumes, VolumeMounts  | 04-mysql-deployment.yml  |
 | ClusterIP Service  | 05-mysql-clusterip-service.yml  |
 
+POD WILL RESTART AND USE THE SAME DB
+
 ## Step-02: Create following Kubernetes manifests
 ### Create Storage Class manifest
 - https://kubernetes.io/docs/concepts/storage/storage-classes/#volume-binding-mode
@@ -46,9 +48,6 @@ kubectl get pv
 # Create MySQL Database
 kubectl apply -f kube-manifests/
 
-# List Storage Classes
-kubectl get sc
-
 # List PVC
 kubectl get pvc 
 
@@ -58,26 +57,27 @@ kubectl get pv
 # List pods
 kubectl get pods 
 
-# List pods based on  label name
-kubectl get pods -l app=mysql
 ```
+Ensure that you are doing below things
+1. Create an empty volume with sufficient space and update pv.yaml with it. Also ensure if the zone is different from us-east-1a then update that.
+2. Ensure that one node is running in the zone where volume is created. Also update that in  mysql-deployment.yml
 
 ## Step-04: Connect to MySQL Database
 ```
-# Connect to MYSQL Database
-kubectl run -it --rm --image=mysql:5.6 --restart=Never mysql-client -- mysql -h mysql -pdbpassword11
+First time work:
+Login to pod:
+kubectl exec pod/mysql-<pod suffix randomly created> -it -- /bin/bash 
 
-# Verify usermgmt schema got created which we provided in ConfigMap
-mysql> show schemas;
-```
+Login to mysql in the pod shell
+mysql -p
+(Give the password from config file)
 
-## Step-05: References
-- We need to discuss references exclusively here. 
-- These will help you in writing effective templates based on need in your environments. 
-- Few features are still in alpha stage as on today (Example:Resizing), but once they reach beta you can start leveraging those templates and make your trials. 
-- **EBS CSI Driver:** https://github.com/kubernetes-sigs/aws-ebs-csi-driver
-- **EBS CSI Driver Dynamic Provisioning:**  https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/examples/kubernetes/dynamic-provisioning
-- **EBS CSI Driver - Other Examples like Resizing, Snapshot etc:** https://github.com/kubernetes-sigs/aws-ebs-csi-driver/tree/master/examples/kubernetes
-- **k8s API Reference Doc:** https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.18/#storageclass-v1-storage-k8s-io
-
-
+Create DB
+CREATE DATABASE menagerie;
+Change to DB
+USE menagerie
+Create a table
+CREATE TABLE pet (name VARCHAR(20), owner VARCHAR(20),
+       species VARCHAR(20), sex CHAR(1), birth DATE, death DATE);
+verify it is created
+SHOW TABLES;
